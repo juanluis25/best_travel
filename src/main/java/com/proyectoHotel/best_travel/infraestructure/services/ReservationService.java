@@ -8,6 +8,7 @@ import com.proyectoHotel.best_travel.domain.repositories.CustomerRepository;
 import com.proyectoHotel.best_travel.domain.repositories.HotelRepository;
 import com.proyectoHotel.best_travel.domain.repositories.ReservationRepository;
 import com.proyectoHotel.best_travel.infraestructure.abstract_services.IReservationService;
+import com.proyectoHotel.best_travel.infraestructure.helpers.CustomerHelper;
 import com.proyectoHotel.best_travel.util.BestTravelUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,7 @@ public class ReservationService implements IReservationService {
     private  final HotelRepository hotelRepository;
     private final CustomerRepository customerRepository;
     private final ReservationRepository reservationRepository;
+    private final CustomerHelper customerHelper;
 
     @Override
     public ReservationResponse create(ReservationRequest request) {
@@ -46,8 +48,7 @@ public class ReservationService implements IReservationService {
                 .build();
 
         var reservationPersisted = reservationRepository.save(reservationToPersist);
-
-
+        this.customerHelper.increase(customer.getDni(), ReservationService.class);
         return this.entityToResponse(reservationPersisted);
     }
 
@@ -79,6 +80,8 @@ public class ReservationService implements IReservationService {
     @Override
     public void delete(UUID id) {
         var reservationToDelete = reservationRepository.findById(id).orElseThrow();
+        var dni = reservationToDelete.getCustomer().getDni();
+        this.customerHelper.decrease(dni, ReservationService.class);
         this.reservationRepository.delete(reservationToDelete);
     }
     private ReservationResponse entityToResponse (ReservationEntity entity){

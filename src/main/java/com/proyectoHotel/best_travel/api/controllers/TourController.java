@@ -36,9 +36,23 @@ public class TourController {
         this.tourService.removeTicket(tourId, ticketId);
         return ResponseEntity.noContent().build();
     }
-    @PatchMapping(path = "{tourId}/add_ticket/{ticketId}")
+    @PatchMapping(path = "{tourId}/add_ticket/{flyId}")
     public ResponseEntity<Map<String,UUID>> postTicket(@PathVariable Long tourId, @PathVariable Long flyId){
         var response = Collections.singletonMap("ticketId", this.tourService.addTicket(tourId, flyId));
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping(path = "{tourId}/remove_reservation/{reservationId}")
+    public ResponseEntity<Void> deleteReservation(@PathVariable Long tourId, @PathVariable UUID reservationId){
+        this.tourService.removeReservation(tourId, reservationId);
+        return ResponseEntity.noContent().build();
+    }
+    @PatchMapping(path = "{tourId}/add_reservation/{hotelId}")
+    public ResponseEntity<Map<String,UUID>> postTicket(
+            @PathVariable Long tourId,
+            @PathVariable Long hotelId,
+            @RequestParam Integer totalDays){
+        var response = Collections.singletonMap("ticketId", this.tourService.addReservation(tourId, hotelId, totalDays));
         return ResponseEntity.ok(response);
     }
 }

@@ -8,6 +8,7 @@ import com.proyectoHotel.best_travel.domain.repositories.CustomerRepository;
 import com.proyectoHotel.best_travel.domain.repositories.FlyRepository;
 import com.proyectoHotel.best_travel.domain.repositories.TicketRepository;
 import com.proyectoHotel.best_travel.infraestructure.abstract_services.ITicketService;
+import com.proyectoHotel.best_travel.infraestructure.helpers.CustomerHelper;
 import com.proyectoHotel.best_travel.util.BestTravelUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,8 @@ public class TicketService implements ITicketService {
     private final FlyRepository flyRepository;
     private final CustomerRepository customerRepository;
     private final TicketRepository ticketRepository;
+    private final CustomerHelper customerHelper;
+
     @Override
     public TicketResponse create(TicketRequest request) {
         var fly = flyRepository.findById(request.getIdFly()).orElseThrow();
@@ -51,8 +54,7 @@ public class TicketService implements ITicketService {
         var ticketPersisted = this.ticketRepository.save(ticketToPersist);
 
         LOGGER.error("Ticket saved with id: {}",ticketPersisted.getId());
-        log.info("Ticket saved with id: {}",ticketPersisted.getId());
-
+        this.customerHelper.increase(customer.getDni(), TicketService.class);
         return this.entityToResponse(ticketPersisted);
     }
 
@@ -85,6 +87,8 @@ public class TicketService implements ITicketService {
     @Override
     public void delete(UUID id) {
         var ticketToDelete = ticketRepository.findById(id).orElseThrow();
+        var dni = ticketToDelete.getCustomer().getDni();
+        this.customerHelper.decrease(dni, TicketService.class);
         this.ticketRepository.delete(ticketToDelete);
     }
     @Override

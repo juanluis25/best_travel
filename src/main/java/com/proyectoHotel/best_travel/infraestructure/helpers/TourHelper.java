@@ -82,10 +82,11 @@ public class TourHelper {
                 .totalDays(totalDays)
                 .dateTimeReservation(LocalDateTime.now())
                 .dateStart(LocalDate.now())
-                .dateEnd(LocalDate.now().plusDays(request.getTotalDays()))
-                .price(hotel.getPrice().add(hotel.getPrice().multiply(charges_price_percentage)))
+                .dateEnd(LocalDate.now().plusDays(totalDays))
+                .price(hotel.getPrice().add(hotel.getPrice().multiply(ReservationService.charges_price_percentage)))
                 .build();
 
         var reservationPersisted = reservationRepository.save(reservationToPersist);
+        return reservationPersisted;
     }
 }
